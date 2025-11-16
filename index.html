@@ -5,12 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drug Interaction Checker</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
@@ -33,43 +29,10 @@
             padding: 30px;
         }
 
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
+        .header h1 { font-size: 28px; margin-bottom: 8px; }
+        .header p { opacity: 0.9; font-size: 14px; }
 
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .connection-status {
-            padding: 12px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .connection-status.show {
-            display: block;
-        }
-
-        .connection-status.success {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .connection-status.error {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
+        .content { padding: 30px; }
 
         .search-box {
             display: flex;
@@ -83,10 +46,10 @@
             border: 2px solid #e5e7eb;
             border-radius: 8px;
             font-size: 16px;
-            outline: none;
         }
 
         .search-input:focus {
+            outline: none;
             border-color: #2563eb;
         }
 
@@ -101,14 +64,8 @@
             cursor: pointer;
         }
 
-        .add-btn:hover {
-            background: #1d4ed8;
-        }
-
-        .add-btn:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-        }
+        .add-btn:hover { background: #1d4ed8; }
+        .add-btn:disabled { background: #d1d5db; cursor: not-allowed; }
 
         .hint {
             font-size: 12px;
@@ -116,14 +73,23 @@
             margin-top: 8px;
         }
 
-        .error {
+        .error, .success {
             margin-top: 12px;
             padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .error {
             background: #fef2f2;
             border: 1px solid #fecaca;
-            border-radius: 8px;
             color: #991b1b;
-            font-size: 14px;
+        }
+
+        .success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
         }
 
         .med-section {
@@ -164,9 +130,6 @@
             padding: 0;
             width: 20px;
             height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .alert-box {
@@ -195,10 +158,6 @@
             font-size: 12px;
         }
 
-        .severity-counts span {
-            font-weight: 600;
-        }
-
         .network-container {
             background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
             border-radius: 12px;
@@ -215,17 +174,6 @@
             justify-content: center;
             flex-direction: column;
             color: #9ca3af;
-        }
-
-        .empty-state svg {
-            width: 48px;
-            height: 48px;
-            margin-bottom: 12px;
-            opacity: 0.5;
-        }
-
-        .empty-state p {
-            font-size: 14px;
         }
 
         #network {
@@ -246,21 +194,11 @@
             margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
         }
 
-        .details-content {
-            font-size: 14px;
-        }
-
-        .details-row {
-            margin-bottom: 12px;
-        }
-
-        .details-label {
-            font-weight: 600;
-            color: #374151;
-        }
+        .details-content { font-size: 14px; }
+        .details-row { margin-bottom: 12px; }
+        .details-label { font-weight: 600; color: #374151; }
 
         .severity-badge {
             display: inline-block;
@@ -278,10 +216,7 @@
             margin-bottom: 20px;
         }
 
-        .legend h3 {
-            font-size: 14px;
-            margin-bottom: 12px;
-        }
+        .legend h3 { font-size: 14px; margin-bottom: 12px; }
 
         .legend-items {
             display: grid;
@@ -302,19 +237,13 @@
             border-radius: 2px;
         }
 
-        .legend-text {
-            flex: 1;
-        }
-
         .legend-text strong {
             display: block;
             color: #111827;
             margin-bottom: 2px;
         }
 
-        .legend-text small {
-            color: #6b7280;
-        }
+        .legend-text small { color: #6b7280; }
 
         .disclaimer {
             background: #fef3c7;
@@ -339,20 +268,6 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-
-        .close-btn {
-            background: none;
-            border: none;
-            color: #9ca3af;
-            cursor: pointer;
-            font-size: 20px;
-            padding: 0;
-            line-height: 1;
-        }
-
-        .close-btn:hover {
-            color: #6b7280;
-        }
     </style>
 </head>
 <body>
@@ -363,12 +278,6 @@
         </div>
 
         <div class="content">
-            <div id="connectionStatus" class="connection-status"></div>
-
-            <div style="background: yellow; padding: 10px; margin: 10px 0;">
-    API URL: <span id="apiTest"></span>
-            </div>
-
             <div class="search-box">
                 <input 
                     type="text" 
@@ -378,8 +287,8 @@
                 >
                 <button id="addBtn" class="add-btn">Add</button>
             </div>
-            <p class="hint">Enter generic or brand names (e.g., paracetamol, aspirin, ibuprofen)</p>
-            <div id="error"></div>
+            <p class="hint">Try: aspirin, paracetamol, ibuprofen, warfarin</p>
+            <div id="message"></div>
 
             <div id="medSection" class="med-section" style="display: none;">
                 <h3>Your Medications (<span id="medCount">0</span>)</h3>
@@ -390,11 +299,8 @@
 
             <div class="network-container">
                 <div id="emptyState" class="empty-state">
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
                     <p style="font-weight: 500; margin-bottom: 4px;">No medications added</p>
-                    <p>Add medications above to check for interactions</p>
+                    <p style="font-size: 14px;">Add medications above to check for interactions</p>
                 </div>
                 <svg id="network" style="display: none;"></svg>
             </div>
@@ -415,14 +321,14 @@
                         <div class="legend-line" style="background: #f59e0b;"></div>
                         <div class="legend-text">
                             <strong>Moderate</strong>
-                            <small>Use with caution - monitoring may be needed</small>
+                            <small>Use with caution - monitoring needed</small>
                         </div>
                     </div>
                     <div class="legend-item">
                         <div class="legend-line" style="background: #10b981;"></div>
                         <div class="legend-text">
                             <strong>Low</strong>
-                            <small>Minor interaction - usually manageable</small>
+                            <small>Minor interaction - manageable</small>
                         </div>
                     </div>
                 </div>
@@ -430,118 +336,82 @@
 
             <div class="disclaimer">
                 <strong>Important:</strong> This tool uses official drug databases but is not a substitute for professional medical advice. 
-                Always consult your doctor or pharmacist about medication interactions before making any changes to your prescriptions.
+                Always consult your doctor or pharmacist about medication interactions.
             </div>
         </div>
     </div>
 
     <script>
-        console.log('Script loaded');
-        
-        const API_URL = 'https://drug-interaction-checker-yz4t.onrender.com';
-        document.getElementById('apiTest').textContent = API_URL;
-        let medications = [];
-        let interactions = [];
-        let selectedConnection = null;
+        const API = window.location.origin;
+        let meds = [];
+        let links = [];
 
-        const searchInput = document.getElementById('searchInput');
-        const addBtn = document.getElementById('addBtn');
-        const errorDiv = document.getElementById('error');
-        const medSection = document.getElementById('medSection');
+        const input = document.getElementById('searchInput');
+        const btn = document.getElementById('addBtn');
+        const msg = document.getElementById('message');
+        const medSec = document.getElementById('medSection');
         const medList = document.getElementById('medList');
         const medCount = document.getElementById('medCount');
         const alertBox = document.getElementById('alertBox');
-        const emptyState = document.getElementById('emptyState');
-        const network = document.getElementById('network');
-        const detailsBox = document.getElementById('detailsBox');
-        const connectionStatus = document.getElementById('connectionStatus');
+        const empty = document.getElementById('emptyState');
+        const svg = document.getElementById('network');
+        const details = document.getElementById('detailsBox');
 
-        console.log('Elements found:', { searchInput, addBtn, network });
-
-        // Test connection on load
-        window.addEventListener('load', async () => {
-            console.log('Testing connection...');
-            try {
-                const res = await fetch(`${API_URL}/health`, { 
-                    method: 'GET',
-                    mode: 'cors'
-                });
-                if (res.ok) {
-                    console.log('Connected to server');
-                    showConnectionStatus('✅ Connected to server', 'success');
-                } else {
-                    console.error('Server responded but not OK');
-                    showConnectionStatus('⚠️ Server issue. Check Termux', 'error');
-                }
-            } catch (err) {
-                console.error('Connection error:', err);
-                showConnectionStatus('❌ Cannot connect. Make sure server is running in Termux: node server.js', 'error');
-            }
-        });
-
-        function showConnectionStatus(msg, type) {
-            connectionStatus.textContent = msg;
-            connectionStatus.className = `connection-status ${type} show`;
-            if (type === 'success') {
-                setTimeout(() => {
-                    connectionStatus.classList.remove('show');
-                }, 5000);
-            }
+        function showMsg(text, type) {
+            msg.innerHTML = `<div class="${type}">${text}</div>`;
+            setTimeout(() => msg.innerHTML = '', 5000);
         }
 
         async function searchDrug(term) {
-            console.log('Searching for:', term);
             try {
-                const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(term)}`);
+                const res = await fetch(`${API}/api/search?q=${encodeURIComponent(term)}`);
                 if (!res.ok) return null;
                 const data = await res.json();
-                console.log('Found drug:', data);
+                if (data.name && data.name.length > 50) {
+                    data.name = term.charAt(0).toUpperCase() + term.slice(1);
+                }
                 return data;
             } catch (err) {
-                console.error('Search failed:', err);
+                console.error(err);
                 return null;
             }
         }
 
-        async function fetchInteractions(meds) {
+        async function getInteractions() {
             if (meds.length < 2) {
-                interactions = [];
+                links = [];
                 return;
             }
 
-            console.log('Fetching interactions for', meds.length, 'drugs');
             try {
-                const res = await fetch(`${API_URL}/api/interactions`, {
+                const res = await fetch(`${API}/api/interactions`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ drugs: meds })
                 });
 
                 if (res.ok) {
-                    interactions = await res.json();
-                    console.log('Found interactions:', interactions.length);
+                    links = await res.json();
                 }
             } catch (err) {
-                console.error('Failed to fetch interactions:', err);
+                console.error(err);
             }
         }
 
-        async function addMedication() {
-            const term = searchInput.value.trim();
+        async function addDrug() {
+            const term = input.value.trim();
             if (!term) return;
 
-            console.log('Adding medication:', term);
-            addBtn.disabled = true;
-            addBtn.innerHTML = '<span class="spinner"></span>';
-            errorDiv.innerHTML = '';
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner"></span>';
 
             const drug = await searchDrug(term);
 
             if (drug) {
-                if (medications.some(m => m.rxcui === drug.rxcui)) {
-                    showError('Already added to your list');
+                if (meds.some(m => m.rxcui === drug.rxcui)) {
+                    showMsg('Already in your list', 'error');
                 } else {
-                    medications.push({
+                    meds.push({
                         rxcui: drug.rxcui,
                         name: drug.name,
                         x: 300 + Math.random() * 200,
@@ -549,78 +419,68 @@
                         vx: 0,
                         vy: 0
                     });
-                    searchInput.value = '';
-                    await fetchInteractions(medications);
+                    input.value = '';
+                    await getInteractions();
                     render();
+                    showMsg(`Added ${drug.name}`, 'success');
                 }
             } else {
-                showError('Medication not found. Check spelling or try generic name');
+                showMsg('Drug not found. Try generic name', 'error');
             }
 
-            addBtn.disabled = false;
-            addBtn.textContent = 'Add';
+            btn.disabled = false;
+            btn.textContent = 'Add';
         }
 
-        function removeMedication(rxcui) {
-            console.log('Removing medication:', rxcui);
-            medications = medications.filter(m => m.rxcui !== rxcui);
-            selectedConnection = null;
-            fetchInteractions(medications).then(render);
+        function removeDrug(rxcui) {
+            meds = meds.filter(m => m.rxcui !== rxcui);
+            getInteractions().then(render);
         }
 
-        function showError(msg) {
-            errorDiv.innerHTML = `<div class="error">${msg}</div>`;
-            setTimeout(() => errorDiv.innerHTML = '', 5000);
-        }
-
-        function getSeverityColor(severity) {
-            const s = severity?.toLowerCase();
-            if (s === 'high' || s === 'severe') return '#dc2626';
-            if (s === 'moderate') return '#f59e0b';
-            if (s === 'low' || s === 'mild') return '#10b981';
-            return '#f59e0b';
+        function getSeverityColor(s) {
+            const severity = s?.toLowerCase();
+            if (severity === 'high' || severity === 'severe') return '#dc2626';
+            if (severity === 'moderate') return '#f59e0b';
+            return '#10b981';
         }
 
         function render() {
-            console.log('Rendering. Medications:', medications.length, 'Interactions:', interactions.length);
-            medCount.textContent = medications.length;
+            medCount.textContent = meds.length;
             
-            if (medications.length === 0) {
-                medSection.style.display = 'none';
+            if (meds.length === 0) {
+                medSec.style.display = 'none';
                 alertBox.style.display = 'none';
-                emptyState.style.display = 'flex';
-                network.style.display = 'none';
-                detailsBox.style.display = 'none';
+                empty.style.display = 'flex';
+                svg.style.display = 'none';
+                details.style.display = 'none';
                 return;
             }
 
-            medSection.style.display = 'block';
-            emptyState.style.display = 'none';
-            network.style.display = 'block';
+            medSec.style.display = 'block';
+            empty.style.display = 'none';
+            svg.style.display = 'block';
 
-            medList.innerHTML = medications.map(m => `
+            medList.innerHTML = meds.map(m => `
                 <div class="med-tag">
                     <span>${m.name}</span>
-                    <button class="remove-btn" onclick="removeMedication('${m.rxcui}')">×</button>
+                    <button class="remove-btn" onclick="removeDrug('${m.rxcui}')">×</button>
                 </div>
             `).join('');
 
-            if (interactions.length > 0) {
-                const counts = {
-                    high: interactions.filter(i => i.severity === 'high').length,
-                    moderate: interactions.filter(i => i.severity === 'moderate').length,
-                    low: interactions.filter(i => i.severity === 'low').length
-                };
+            if (links.length > 0) {
+                const high = links.filter(l => l.severity === 'high').length;
+                const mod = links.filter(l => l.severity === 'moderate').length;
+                const low = links.filter(l => l.severity === 'low').length;
 
                 alertBox.style.display = 'block';
                 alertBox.innerHTML = `
                     <div class="alert-box">
-                        <h3>⚠️ Interactions Detected</h3>
-                        <p>${interactions.length} potential interaction${interactions.length !== 1 ? 's' : ''} found</p>
+                        <h3>⚠️ ${links.length} Interaction${links.length > 1 ? 's' : ''} Found</h3>
+                        <p>Review the connections in the network below</p>
                         <div class="severity-counts">
-                            ${counts.high > 0 ? `<span style="color: #dc2626;">${counts.high} High Risk</span>` : ''}
-                            ${counts.moderate > 0 ? `<span style="color: #f59e0b;">${counts.moderate} Moderate</span>` : ''}
-                            ${counts.low > 0 ? `<span style="color: #10b981;">${counts.low} Low</span>` : ''}
+                            ${high > 0 ? `<span style="color: #dc2626; font-weight: 600;">${high} High Risk</span>` : ''}
+                            ${mod > 0 ? `<span style="color: #f59e0b; font-weight: 600;">${mod} Moderate</span>` : ''}
+                            ${low > 0 ? `<span style="color: #10b981; font-weight: 600;">${low} Low</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -628,118 +488,162 @@
                 alertBox.style.display = 'none';
             }
 
-            drawNetwork();
+            draw();
         }
 
-        function drawNetwork() {
-            const svg = network;
+        function draw() {
             const rect = svg.parentElement.getBoundingClientRect();
-            const width = rect.width - 40;
-            const height = rect.height - 40;
+            const w = rect.width - 40;
+            const h = rect.height - 40;
 
+            svg.setAttribute('width', w);
+            svg.setAttribute('height', h);
             svg.innerHTML = '';
-            svg.setAttribute('width', width);
-            svg.setAttribute('height', height);
 
-            interactions.forEach((interaction, idx) => {
-                const source = medications.find(m => m.rxcui === interaction.source);
-                const target = medications.find(m => m.rxcui === interaction.target);
-                if (!source || !target) return;
+            links.forEach(link => {
+                const s = meds.find(m => m.rxcui === link.source);
+                const t = meds.find(m => m.rxcui === link.target);
+                if (!s || !t) return;
 
-                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line.setAttribute('x1', source.x);
-                line.setAttribute('y1', source.y);
-                line.setAttribute('x2', target.x);
-                line.setAttribute('y2', target.y);
-                line.setAttribute('stroke', getSeverityColor(interaction.severity));
-                line.setAttribute('stroke-width', 3);
-                line.setAttribute('cursor', 'pointer');
-
-                // Click to show details
-                line.addEventListener('click', () => {
-                    selectedConnection = interaction;
-                    renderInteractionDetails();
-                });
-
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                line.setAttribute('x1', s.x);
+                line.setAttribute('y1', s.y);
+                line.setAttribute('x2', t.x);
+                line.setAttribute('y2', t.y);
+                line.setAttribute('stroke', getSeverityColor(link.severity));
+                line.setAttribute('stroke-width', '3');
+                line.setAttribute('opacity', '0.7');
+                line.style.cursor = 'pointer';
+                line.onclick = () => showDetails(link);
                 svg.appendChild(line);
             });
 
-            // Draw nodes (medications)
-            medications.forEach(med => {
+            meds.forEach(m => {
+                const hasLink = links.some(l => l.source === m.rxcui || l.target === m.rxcui);
+
                 const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-                circle.setAttribute('cx', med.x);
-                circle.setAttribute('cy', med.y);
-                circle.setAttribute('r', 18);
-                circle.setAttribute('fill', '#2563eb');
-                circle.setAttribute('stroke', 'white');
-                circle.setAttribute('stroke-width', 2);
-
-                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                label.setAttribute('x', med.x);
-                label.setAttribute('y', med.y + 4);
-                label.setAttribute('text-anchor', 'middle');
-                label.setAttribute('fill', 'white');
-                label.setAttribute('font-size', '10');
-                label.textContent = med.name.slice(0, 10);
-
+                circle.setAttribute('cx', m.x);
+                circle.setAttribute('cy', m.y);
+                circle.setAttribute('r', '38');
+                circle.setAttribute('fill', 'white');
+                circle.setAttribute('stroke', hasLink ? '#dc2626' : '#2563eb');
+                circle.setAttribute('stroke-width', '3');
+                circle.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))';
                 svg.appendChild(circle);
-                svg.appendChild(label);
+
+                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                text.setAttribute('x', m.x);
+                text.setAttribute('y', m.y);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('dominant-baseline', 'middle');
+                text.setAttribute('fill', '#1e40af');
+                text.setAttribute('font-size', '12');
+                text.setAttribute('font-weight', '600');
+                text.textContent = m.name.length > 12 ? m.name.substring(0, 11) + '...' : m.name;
+                svg.appendChild(text);
             });
         }
 
-        // ===============================
-        // INTERACTION DETAILS BOX
-        // ===============================
+        function showDetails(link) {
+            const s = meds.find(m => m.rxcui === link.source);
+            const t = meds.find(m => m.rxcui === link.target);
+            const color = getSeverityColor(link.severity);
 
-        function renderInteractionDetails() {
-            if (!selectedConnection) {
-                detailsBox.style.display = 'none';
-                return;
-            }
-
-            const source = medications.find(m => m.rxcui === selectedConnection.source);
-            const target = medications.find(m => m.rxcui === selectedConnection.target);
-
-            detailsBox.style.display = 'block';
-            detailsBox.innerHTML = `
+            details.style.display = 'block';
+            details.innerHTML = `
                 <div class="details-box">
                     <h3>
                         Interaction Details
-                        <button class="close-btn" onclick="closeDetails()">×</button>
+                        <button class="remove-btn" onclick="document.getElementById('detailsBox').style.display='none'">×</button>
                     </h3>
                     <div class="details-content">
                         <div class="details-row">
-                            <span class="details-label">Drugs:</span><br>
-                            ${source.name} ↔ ${target.name}
+                            <span class="details-label">Between: </span>
+                            ${s.name} and ${t.name}
                         </div>
                         <div class="details-row">
-                            <span class="details-label">Severity:</span>
-                            <span class="severity-badge" 
-                                style="background: ${getSeverityColor(selectedConnection.severity)}20; 
-                                       color:${getSeverityColor(selectedConnection.severity)};">
-                                ${selectedConnection.severity.toUpperCase()}
+                            <span class="details-label">Severity: </span>
+                            <span class="severity-badge" style="background: ${color}20; color: ${color};">
+                                ${link.severity}
                             </span>
                         </div>
                         <div class="details-row">
-                            <span class="details-label">Description:</span>
-                            <p>${selectedConnection.description || 'No description available.'}</p>
+                            <span class="details-label" style="display: block; margin-bottom: 8px;">Details:</span>
+                            <p style="line-height: 1.6; color: #111827;">${link.description}</p>
                         </div>
                     </div>
                 </div>
             `;
         }
 
-        function closeDetails() {
-            selectedConnection = null;
-            detailsBox.style.display = 'none';
+        function simulate() {
+            if (meds.length === 0) return;
+
+            const w = svg.clientWidth;
+            const h = svg.clientHeight;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            meds.forEach(m => {
+                m.vx = (m.vx || 0) * 0.85;
+                m.vy = (m.vy || 0) * 0.85;
+                m.vx += (cx - m.x) * 0.02;
+                m.vy += (cy - m.y) * 0.02;
+            });
+
+            for (let i = 0; i < meds.length; i++) {
+                for (let j = i + 1; j < meds.length; j++) {
+                    const dx = meds[j].x - meds[i].x;
+                    const dy = meds[j].y - meds[i].y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+
+                    if (d < 120 && d > 0) {
+                        const f = (120 - d) / d * 0.8;
+                    meds[i].vx -= dx * f;
+                        meds[i].vy -= dy * f;
+                        meds[j].vx += dx * f;
+                        meds[j].vy += dy * f;
+                    }
+                }
+            }
+
+            links.forEach(link => {
+                const s = meds.find(n => n.rxcui === link.source);
+                const t = meds.find(n => n.rxcui === link.target);
+                if (s && t) {
+                    const dx = t.x - s.x;
+                    const dy = t.y - s.y;
+                    const d = Math.sqrt(dx * dx + dy * dy);
+                    const target = 180;
+
+                    if (d > 0) {
+                        const f = (d - target) / d * 0.15;
+                        s.vx += dx * f;
+                        s.vy += dy * f;
+                        t.vx -= dx * f;
+                        t.vy -= dy * f;
+                    }
+                }
+            });
+
+            meds.forEach(m => {
+                m.x += m.vx || 0;
+                m.y += m.vy || 0;
+
+                const margin = 50;
+                m.x = Math.max(margin, Math.min(w - margin, m.x));
+                m.y = Math.max(margin, Math.min(h - margin, m.y));
+            });
+
+            draw();
         }
 
-        // Add medication button
-        addBtn.addEventListener('click', addMedication);
+        btn.onclick = addDrug;
+        input.onkeypress = (e) => {
+            if (e.key === 'Enter') addDrug();
+        };
 
-        // Enter key support
-        searchInput.addEventListener('keydown', e => {
-            if (e.key === 'Enter') addMedication();
-        });
+        setInterval(simulate, 30);
     </script>
 </body>
 </html>
