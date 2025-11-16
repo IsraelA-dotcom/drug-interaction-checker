@@ -71,41 +71,51 @@ app.post('/api/interactions', async (req, res) => {
   const checked = new Set();
 
   try {
-    const rxcuis = drugs.map(d => d.rxcui).join('+');
-    
-    const { data } = await axios.get(
-      `${RXNORM_BASE}/interaction/list.json`,
-      { params: { rxcuis: rxcuis } }
-    );
+    for (let i = 0; i < drugs.length; i++) {
+      console.log(`Checking interactions for ${drugs[i].name} (${drugs[i].rxcui})`);
+      
+      try {
+        const { data } = await axios.get(
+          `${RXNORM_BASE}/interaction/interaction.json`,
+          { 
+            params: { rxcui: drugs[i].rxcui },
+            timeout: 10000
+          }
+        );
 
-    console.log('Interaction API response:', JSON.stringify(data, null, 2));
+        console.log(`Response for ${drugs[i].name}:`, data.interactionTypeGroup ? 'Has interactions' : 'No interactions');
 
-    if (data.fullInteractionTypeGroup) {
-      for (let group of data.fullInteractionTypeGroup) {
-        if (group.fullInteractionType) {
-          for (let interactionType of group.fullInteractionType) {
-            if (interactionType.interactionPair) {
-              for (let pair of interactionType.interactionPair) {
-                const concepts = pair.interactionConcept || [];
-                
-                if (concepts.length >= 2) {
-                  const rxcui1 = concepts[0].minConceptItem?.rxcui;
-                  const rxcui2 = concepts[1].minConceptItem?.rxcui;
-                  
-                  const drug1 = drugs.find(d => d.rxcui === rxcui1);
-                  const drug2 = drugs.find(d => d.rxcui === rxcui2);
-                  
-                  if (drug1 && drug2) {
-                    const key = [rxcui1, rxcui2].sort().join('-');
+        if (data.interactionTypeGroup) {
+          for (let typeGroup of data.interactionTypeGroup) {
+            if (typeGroup.interactionType) {
+              for (let interactionType of typeGroup.interactionType) {
+                if (interactionType.interactionPair) {
+                  for (let pair of interactionType.interactionPair) {
                     
-                    if (!checked.has(key)) {
-                      checked.add(key);
-                      interactions.push({
-                        source: rxcui1,
-                        target: rxcui2,
-                        severity: pair.severity?.toLowerCase() || 'moderate',
-                        description: pair.description || 'Interaction detected'
-                      });
+                    const concepts = pair.interactionConcept || [];
+                    
+                    for (let concept of concepts) {
+                      const targetRxcui = concept.minConceptItem?.rxcui;
+                      
+                      const targetDrug = drugs.find(d => d.rxcui === targetRxcui && d.rxcui !== drugs[i].rxcui);
+                      
+                      if (targetDrug) {
+                        const key = [drugs[i].rxcui, targetRxcui].sort().join('-');
+                        
+                        if (!checked.has(key)) {
+                          checked.add(key);
+                          
+                          const interaction = {
+                            source: drugs[i].rxcui,
+                            target: targetRxcui,
+                            severity: pair.severity?.toLowerCase() || 'moderate',
+                            description: pair.description || 'Interaction detected between these medications'
+                          };
+                          
+                          console.log(`Found interaction: ${drugs[i].name} <-> ${targetDrug.name} (${interaction.severity})`);
+                          interactions.push(interaction);
+                        }
+                      }
                     }
                   }
                 }
@@ -113,10 +123,12 @@ app.post('/api/interactions', async (req, res) => {
             }
           }
         }
+      } catch (drugErr) {
+        console.error(`Error checking ${drugs[i].name}:`, drugErr.message);
       }
     }
 
-    console.log(`Found ${interactions.length} interactions`);
+    console.log(`Total interactions found: ${interactions.length}`);
     res.json(interactions);
   } catch (err) {
     console.error('Interaction check error:', err.message);
