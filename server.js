@@ -29,7 +29,10 @@ app.get('/api/search', async (req, res) => {
       for (let group of data.drugGroup.conceptGroup) {
         if (group.conceptProperties?.length > 0) {
           const drug = group.conceptProperties[0];
-          result = { rxcui: drug.rxcui, name: drug.name };
+          result = { 
+            rxcui: drug.rxcui, 
+            name: drug.name.length > 50 ? q.charAt(0).toUpperCase() + q.slice(1) : drug.name
+          };
           break;
         }
       }
@@ -68,39 +71,44 @@ app.post('/api/interactions', async (req, res) => {
   const checked = new Set();
 
   try {
-    for (let i = 0; i < drugs.length; i++) {
-      const { data } = await axios.get(`${RXNORM_BASE}/interaction/interaction.json`, {
-        params: { rxcui: drugs[i].rxcui }
-      });
+    const rxcuis = drugs.map(d => d.rxcui).join('+');
+    
+    const { data } = await axios.get(
+      `${RXNORM_BASE}/interaction/list.json`,
+      { params: { rxcuis: rxcuis } }
+    );
 
-      if (!data.interactionTypeGroup) continue;
+    console.log('Interaction API response:', JSON.stringify(data, null, 2));
 
-      for (let typeGroup of data.interactionTypeGroup) {
-        if (!typeGroup.interactionType) continue;
-
-        for (let interactionType of typeGroup.interactionType) {
-          if (!interactionType.interactionPair) continue;
-
-          for (let pair of interactionType.interactionPair) {
-            const concepts = pair.interactionConcept || [];
-            
-            for (let concept of concepts) {
-              const targetRxcui = concept.minConceptItem?.rxcui;
-              const targetDrug = drugs.find(d => d.rxcui === targetRxcui);
-
-              if (targetDrug && targetDrug.rxcui !== drugs[i].rxcui) {
-                const key = [drugs[i].rxcui, targetRxcui].sort().join('-');
+    if (data.fullInteractionTypeGroup) {
+      for (let group of data.fullInteractionTypeGroup) {
+        if (group.fullInteractionType) {
+          for (let interactionType of group.fullInteractionType) {
+            if (interactionType.interactionPair) {
+              for (let pair of interactionType.interactionPair) {
+                const concepts = pair.interactionConcept || [];
                 
-                if (!checked.has(key)) {
-                  checked.add(key);
-                  interactions.push({
-                    source: drugs[i].rxcui,
-                    target: targetRxcui,
-                    severity: pair.severity?.toLowerCase() || 'moderate',
-                    description: pair.description
-                  });
+                if (concepts.length >= 2) {
+                  const rxcui1 = concepts[0].minConceptItem?.rxcui;
+                  const rxcui2 = concepts[1].minConceptItem?.rxcui;
+                  
+                  const drug1 = drugs.find(d => d.rxcui === rxcui1);
+                  const drug2 = drugs.find(d => d.rxcui === rxcui2);
+                  
+                  if (drug1 && drug2) {
+                    const key = [rxcui1, rxcui2].sort().join('-');
+                    
+                    if (!checked.has(key)) {
+                      checked.add(key);
+                      interactions.push({
+                        source: rxcui1,
+                        target: rxcui2,
+                        severity: pair.severity?.toLowerCase() || 'moderate',
+                        description: pair.description || 'Interaction detected'
+                      });
+                    }
+                  }
                 }
-                break;
               }
             }
           }
@@ -108,11 +116,16 @@ app.post('/api/interactions', async (req, res) => {
       }
     }
 
+    console.log(`Found ${interactions.length} interactions`);
     res.json(interactions);
   } catch (err) {
     console.error('Interaction check error:', err.message);
     res.status(500).json({ error: 'Failed to check interactions' });
   }
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
 app.get('/', (req, res) => {
