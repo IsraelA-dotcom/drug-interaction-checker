@@ -365,6 +365,10 @@
         <div class="content">
             <div id="connectionStatus" class="connection-status"></div>
 
+            <div style="background: yellow; padding: 10px; margin: 10px 0;">
+    API URL: <span id="apiTest"></span>
+            </div>
+
             <div class="search-box">
                 <input 
                     type="text" 
@@ -435,6 +439,7 @@
         console.log('Script loaded');
         
         const API_URL = 'https://drug-interaction-checker-yz4t.onrender.com';
+        document.getElementById('apiTest').textContent = API_URL;
         let medications = [];
         let interactions = [];
         let selectedConnection = null;
