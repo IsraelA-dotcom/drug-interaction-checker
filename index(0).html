@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drug Interaction Checker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white;
+            padding: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .connection-status {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .connection-status.show {
+            display: block;
+        }
+
+        .connection-status.success {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .connection-status.error {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: #2563eb;
+        }
+
+        .add-btn {
+            padding: 14px 28px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .add-btn:hover {
+            background: #1d4ed8;
+        }
+
+        .add-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 8px;
+        }
+
+        .error {
+            margin-top: 12px;
+            padding: 12px;
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            color: #991b1b;
+            font-size: 14px;
+        }
+
+        .med-section {
+            margin-bottom: 20px;
+        }
+
+        .med-section h3 {
+            font-size: 14px;
+            color: #374151;
+            margin-bottom: 10px;
+        }
+
+        .med-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .med-tag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            background: #eff6ff;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .remove-btn {
+            background: none;
+            border: none;
+            color: #1e40af;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .alert-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fef9c3 100%);
+            border-left: 4px solid #dc2626;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-box h3 {
+            color: #111827;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .alert-box p {
+            color: #374151;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .severity-counts {
+            display: flex;
+            gap: 16px;
+            font-size: 12px;
+        }
+
+        .severity-counts span {
+            font-weight: 600;
+        }
+
+        .network-container {
+            background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+            border-radius: 12px;
+            padding: 20px;
+            height: 500px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .empty-state {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            color: #9ca3af;
+        }
+
+        .empty-state svg {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 12px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        #network {
+            width: 100%;
+            height: 100%;
+        }
+
+        .details-box {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .details-box h3 {
+            font-size: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .details-content {
+            font-size: 14px;
+        }
+
+        .details-row {
+            margin-bottom: 12px;
+        }
+
+        .details-label {
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .severity-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .legend {
+            background: #f9fafb;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .legend h3 {
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .legend-line {
+            width: 40px;
+            height: 3px;
+            border-radius: 2px;
+        }
+
+        .legend-text {
+            flex: 1;
+        }
+
+        .legend-text strong {
+            display: block;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .legend-text small {
+            color: #6b7280;
+        }
+
+        .disclaimer {
+            background: #fef3c7;
+            border: 1px solid #fcd34d;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 12px;
+            color: #78350f;
+            line-height: 1.6;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #9ca3af;
+            cursor: pointer;
+            font-size: 20px;
+            padding: 0;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Drug Interaction Checker</h1>
+            <p>Check medication safety instantly</p>
+        </div>
+
+        <div class="content">
+            <div id="connectionStatus" class="connection-status"></div>
+
+            <div class="search-box">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Enter medication name..."
+                >
+                <button id="addBtn" class="add-btn">Add</button>
+            </div>
+            <p class="hint">Enter generic or brand names (e.g., paracetamol, aspirin, ibuprofen)</p>
+            <div id="error"></div>
+
+            <div id="medSection" class="med-section" style="display: none;">
+                <h3>Your Medications (<span id="medCount">0</span>)</h3>
+                <div id="medList" class="med-list"></div>
+            </div>
+
+            <div id="alertBox" style="display: none;"></div>
+
+            <div class="network-container">
+                <div id="emptyState" class="empty-state">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p style="font-weight: 500; margin-bottom: 4px;">No medications added</p>
+                    <p>Add medications above to check for interactions</p>
+                </div>
+                <svg id="network" style="display: none;"></svg>
+            </div>
+
+            <div id="detailsBox" style="display: none;"></div>
+
+            <div class="legend">
+                <h3>Severity Guide</h3>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #dc2626;"></div>
+                        <div class="legend-text">
+                            <strong>High</strong>
+                            <small>Avoid combination - consult doctor</small>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #f59e0b;"></div>
+                        <div class="legend-text">
+                            <strong>Moderate</strong>
+                            <small>Use with caution - monitoring may be needed</small>
+                        </div>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line" style="background: #10b981;"></div>
+                        <div class="legend-text">
+                            <strong>Low</strong>
+                            <small>Minor interaction - usually manageable</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="disclaimer">
+                <strong>Important:</strong> This tool uses official drug databases but is not a substitute for professional medical advice. 
+                Always consult your doctor or pharmacist about medication interactions before making any changes to your prescriptions.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        console.log('Script loaded');
+        
+        const API_URL = 'http://localhost:3001';
+        let medications = [];
+        let interactions = [];
+        let selectedConnection = null;
+
+        const searchInput = document.getElementById('searchInput');
+        const addBtn = document.getElementById('addBtn');
+        const errorDiv = document.getElementById('error');
+        const medSection = document.getElementById('medSection');
+        const medList = document.getElementById('medList');
+        const medCount = document.getElementById('medCount');
+        const alertBox = document.getElementById('alertBox');
+        const emptyState = document.getElementById('emptyState');
+        const network = document.getElementById('network');
+        const detailsBox = document.getElementById('detailsBox');
+        const connectionStatus = document.getElementById('connectionStatus');
+
+        console.log('Elements found:', { searchInput, addBtn, network });
+
+        // Test connection on load
+        window.addEventListener('load', async () => {
+            console.log('Testing connection...');
+            try {
+                const res = await fetch(`${API_URL}/health`, { 
+                    method: 'GET',
+                    mode: 'cors'
+                });
+                if (res.ok) {
+                    console.log('Connected to server');
+                    showConnectionStatus('✅ Connected to server', 'success');
+                } else {
+                    console.error('Server responded but not OK');
+                    showConnectionStatus('⚠️ Server issue. Check Termux', 'error');
+                }
+            } catch (err) {
+                console.error('Connection error:', err);
+                showConnectionStatus('❌ Cannot connect. Make sure server is running in Termux: node server.js', 'error');
+            }
+        });
+
+        function showConnectionStatus(msg, type) {
+            connectionStatus.textContent = msg;
+            connectionStatus.className = `connection-status ${type} show`;
+            if (type === 'success') {
+                setTimeout(() => {
+                    connectionStatus.classList.remove('show');
+                }, 5000);
+            }
+        }
+
+        async function searchDrug(term) {
+            console.log('Searching for:', term);
+            try {
+                const res = await fetch(`${API_URL}/api/search?q=${encodeURIComponent(term)}`);
+                if (!res.ok) return null;
+                const data = await res.json();
+                console.log('Found drug:', data);
+                return data;
+            } catch (err) {
+                console.error('Search failed:', err);
+                return null;
+            }
+        }
+
+        async function fetchInteractions(meds) {
+            if (meds.length < 2) {
+                interactions = [];
+                return;
+            }
+
+            console.log('Fetching interactions for', meds.length, 'drugs');
+            try {
+                const res = await fetch(`${API_URL}/api/interactions`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ drugs: meds })
+                });
+
+                if (res.ok) {
+                    interactions = await res.json();
+                    console.log('Found interactions:', interactions.length);
+                }
+            } catch (err) {
+                console.error('Failed to fetch interactions:', err);
+            }
+        }
+
+        async function addMedication() {
+            const term = searchInput.value.trim();
+            if (!term) return;
+
+            console.log('Adding medication:', term);
+            addBtn.disabled = true;
+            addBtn.innerHTML = '<span class="spinner"></span>';
+            errorDiv.innerHTML = '';
+
+            const drug = await searchDrug(term);
+
+            if (drug) {
+                if (medications.some(m => m.rxcui === drug.rxcui)) {
+                    showError('Already added to your list');
+                } else {
+                    medications.push({
+                        rxcui: drug.rxcui,
+                        name: drug.name,
+                        x: 300 + Math.random() * 200,
+                        y: 250 + Math.random() * 100,
+                        vx: 0,
+                        vy: 0
+                    });
+                    searchInput.value = '';
+                    await fetchInteractions(medications);
+                    render();
+                }
+            } else {
+                showError('Medication not found. Check spelling or try generic name');
+            }
+
+            addBtn.disabled = false;
+            addBtn.textContent = 'Add';
+        }
+
+        function removeMedication(rxcui) {
+            console.log('Removing medication:', rxcui);
+            medications = medications.filter(m => m.rxcui !== rxcui);
+            selectedConnection = null;
+            fetchInteractions(medications).then(render);
+        }
+
+        function showError(msg) {
+            errorDiv.innerHTML = `<div class="error">${msg}</div>`;
+            setTimeout(() => errorDiv.innerHTML = '', 5000);
+        }
+
+        function getSeverityColor(severity) {
+            const s = severity?.toLowerCase();
+            if (s === 'high' || s === 'severe') return '#dc2626';
+            if (s === 'moderate') return '#f59e0b';
+            if (s === 'low' || s === 'mild') return '#10b981';
+            return '#f59e0b';
+        }
+
+        function render() {
+            console.log('Rendering. Medications:', medications.length, 'Interactions:', interactions.length);
+            medCount.textContent = medications.length;
+            
+            if (medications.length === 0) {
+                medSection.style.display = 'none';
+                alertBox.style.display = 'none';
+                emptyState.style.display = 'flex';
+                network.style.display = 'none';
+                detailsBox.style.display = 'none';
+                return;
+            }
+
+            medSection.style.display = 'block';
+            emptyState.style.display = 'none';
+            network.style.display = 'block';
+
+            medList.innerHTML = medications.map(m => `
+                <div class="med-tag">
+                    <span>${m.name}</span>
+                    <button class="remove-btn" onclick="removeMedication('${m.rxcui}')">×</button>
+                </div>
+            `).join('');
+
+            if (interactions.length > 0) {
+                const counts = {
+                    high: interactions.filter(i => i.severity === 'high').length,
+                    moderate: interactions.filter(i => i.severity === 'moderate').length,
+                    low: interactions.filter(i => i.severity === 'low').length
+                };
+
+                alertBox.style.display = 'block';
+                alertBox.innerHTML = `
+                    <div class="alert-box">
+                        <h3>⚠️ Interactions Detected</h3>
+                        <p>${interactions.length} potential interaction${interactions.length !== 1 ? 's' : ''} found</p>
+                        <div class="severity-counts">
+                            ${counts.high > 0 ? `<span style="color: #dc2626;">${counts.high} High Risk</span>` : ''}
+                            ${counts.moderate > 0 ? `<span style="color: #f59e0b;">${counts.moderate} Moderate</span>` : ''}
+                            ${counts.low > 0 ? `<span style="color: #10b981;">${counts.low} Low</span>` : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                alertBox.style.display = 'none';
+            }
+
+            drawNetwork();
+        }
+
+        function drawNetwork() {
+            const svg = network;
+            const rect = svg.parentElement.getBoundingClientRect();
+            const width = rect.width - 40;
+            const height = rect.height - 40;
+
+            svg.innerHTML = '';
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+
+            interactions.forEach((interaction, idx) => {
+                const source = medications.find(m => m.rxcui === interaction.source);
+                const target = medications.find(m => m.rxcui === interaction.target);
+                if (!source || !target) return;
+
+                const line = document.createElementNS('http://www.w3.org/2000/svg', 'line.setAttribute('x1', source.x);
+                line.setAttribute('y1', source.y);
+                line.setAttribute('x2', target.x);
+                line.setAttribute('y2', target.y);
+                line.setAttribute('stroke', getSeverityColor(interaction.severity));
+                line.setAttribute('stroke-width', 3);
+                line.setAttribute('cursor', 'pointer');
+
+                // Click to show details
+                line.addEventListener('click', () => {
+                    selectedConnection = interaction;
+                    renderInteractionDetails();
+                });
+
+                svg.appendChild(line);
+            });
+
+            // Draw nodes (medications)
+            medications.forEach(med => {
+                const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle.setAttribute('cx', med.x);
+                circle.setAttribute('cy', med.y);
+                circle.setAttribute('r', 18);
+                circle.setAttribute('fill', '#2563eb');
+                circle.setAttribute('stroke', 'white');
+                circle.setAttribute('stroke-width', 2);
+
+                const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+                label.setAttribute('x', med.x);
+                label.setAttribute('y', med.y + 4);
+                label.setAttribute('text-anchor', 'middle');
+                label.setAttribute('fill', 'white');
+                label.setAttribute('font-size', '10');
+                label.textContent = med.name.slice(0, 10);
+
+                svg.appendChild(circle);
+                svg.appendChild(label);
+            });
+        }
+
+        // ===============================
+        // INTERACTION DETAILS BOX
+        // ===============================
+
+        function renderInteractionDetails() {
+            if (!selectedConnection) {
+                detailsBox.style.display = 'none';
+                return;
+            }
+
+            const source = medications.find(m => m.rxcui === selectedConnection.source);
+            const target = medications.find(m => m.rxcui === selectedConnection.target);
+
+            detailsBox.style.display = 'block';
+            detailsBox.innerHTML = `
+                <div class="details-box">
+                    <h3>
+                        Interaction Details
+                        <button class="close-btn" onclick="closeDetails()">×</button>
+                    </h3>
+                    <div class="details-content">
+                        <div class="details-row">
+                            <span class="details-label">Drugs:</span><br>
+                            ${source.name} ↔ ${target.name}
+                        </div>
+                        <div class="details-row">
+                            <span class="details-label">Severity:</span>
+                            <span class="severity-badge" 
+                                style="background: ${getSeverityColor(selectedConnection.severity)}20; 
+                                       color:${getSeverityColor(selectedConnection.severity)};">
+                                ${selectedConnection.severity.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="details-row">
+                            <span class="details-label">Description:</span>
+                            <p>${selectedConnection.description || 'No description available.'}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeDetails() {
+            selectedConnection = null;
+            detailsBox.style.display = 'none';
+        }
+
+        // Add medication button
+        addBtn.addEventListener('click', addMedication);
+
+        // Enter key support
+        searchInput.addEventListener('keydown', e => {
+            if (e.key === 'Enter') addMedication();
+        });
+    </script>
+</body>
+</html>
